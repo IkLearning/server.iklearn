@@ -6,8 +6,11 @@ var logger = require('morgan')
 var cors = require('cors')
 var mongoose = require('mongoose')
 var methodOverride = require('method-override')
+var session = require('express-session')
+
 
 var app = express()
+  
 app.use(cors())
 mongoose.connect('mongodb://localhost:27017/web2')
 
@@ -18,6 +21,20 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
+
+var sessionOptions = {
+  secret: 'liar on ybur',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {}
+}
+
+if(app.get('env') === 'production') {
+  app.set('trust proxy', 1)
+  sessionOptions.cookie.secure = true
+}
+
+app.use(session(sessionOptions))
 app.use(express.static(path.join(__dirname, 'public')))
 
 app.use(methodOverride((req,res)=>{
@@ -29,17 +46,15 @@ app.use(methodOverride((req,res)=>{
   })
 )
 
-
-
 app.use('/api/v1/users', require('./routes/users'))
 app.use('/api/v1/products', require('./routes/products'))
 app.use('/api/v1/categories', require('./routes/categories'))
 
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   next(createError(404))
 })
 
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   res.locals.message = err.message
   res.locals.error = req.app.get('env') === 'development' ? err : {}
 
