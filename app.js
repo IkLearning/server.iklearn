@@ -8,7 +8,6 @@ var mongoose = require('mongoose')
 var methodOverride = require('method-override')
 var session = require('express-session')
 
-
 var app = express()
   
 app.use(cors())
@@ -46,6 +45,7 @@ app.use(methodOverride((req,res)=>{
   })
 )
 
+app.use('/api/v1/auth', require('./routes/auth'))
 app.use('/api/v1/users', require('./routes/users'))
 app.use('/api/v1/products', require('./routes/products'))
 app.use('/api/v1/categories', require('./routes/categories'))
